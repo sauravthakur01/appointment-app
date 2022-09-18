@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form onsubmit="saveToLocalStorage(event)">
+        <label>Name :</label>
+        <input type="text" name="username" id="username" >
+        <label>Email :</label>
+        <input type="email" name="emailId" id="emailId">
+        <label>Phone :</label>
+        <input type="tel" name="phonenumber" id="phonenumber" >
+        <button>Submit</button>
+    </form>
+    <ul id="listOfUsers">
+    </ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+    <script >
+        
+        window.addEventListener("DOMContentLoaded" , ()=>{
+
+            axios.get("https://crudcrud.com/api/de6fb371b44442ccbe899ee2852a357d/addData")
+            .then(res=>{
+                showNewUserOnScreen(res.data);
+            })
+            .catch(err=>{
+                console.log(err);
+                document.body.innerHTML = document.body.innerHTML + `<h4>Something went wrong</h4>`
+            })
+        //     let stringifiedDetailsOfPeople ,detailsOfPeople ;
+
+        // Object.keys(localStorage).forEach((key) => {
+        //     stringifiedDetailsOfPeople = localStorage.getItem(key);
+        //     detailsOfPeople = JSON.parse(stringifiedDetailsOfPeople);
+        //     showNewUserOnScreen(detailsOfPeople);
+
+        // });
+        })
+        
+        
+
+
+
+        function saveToLocalStorage(e){
+            e.preventDefault();
+            const name = e.target.username.value;
+            const email = e.target.emailId.value ;
+            const phonenumber = e.target.phonenumber.value;
+
+            const obj ={
+                name,
+                email,
+                phonenumber
+            }
+
+            axios.post("https://crudcrud.com/api/de6fb371b44442ccbe899ee2852a357d/addData" , obj )
+            .then(res=>{
+                showNewUserOnScreen(res.data);
+            })
+            .catch(err=>{
+                console.log(err);
+                document.body.innerHTML = document.body.innerHTML + `<h4>Something went wrong</h4>`
+            })
+            
+            // localStorage.setItem(obj.email , JSON.stringify(obj));
+            // showNewUserOnScreen(obj);
+        }
+
+        function showNewUserOnScreen(user){
+
+            if(localStorage.getItem(user.email)!== null){
+                removeUserFromScreen(user.email);
+            }
+
+            const parentNode = document.getElementById("listOfUsers");
+            const childHTML = `<li id=${user.email}> ${user.name} ${user.email} 
+                <button onclick="deleteUser('${user.email}')" >Delete</button>
+                <button onclick="editUser('${user.email}','${user.name}','${user.phonenumber}')" >Edit</button>
+                </li>`
+
+            parentNode.innerHTML = parentNode.innerHTML + childHTML;
+
+            document.getElementById("username").value="" ;
+            document.getElementById("emailId").value="" ;
+            document.getElementById("phonenumber").value="" ;
+
+        }
+
+        function deleteUser(emailid){
+           localStorage.removeItem(emailid);
+            removeUserFromScreen(emailid);
+        }
+
+        function editUser(email,name,phonenumber){
+            
+            document.getElementById("username").value=name ;
+            document.getElementById("emailId").value=email ;
+            document.getElementById("phonenumber").value=phonenumber ;
+
+            deleteUser(email);
+        }
+
+        function removeUserFromScreen(emailid){
+     
+            const parentNode = document.getElementById("listOfUsers");
+            const ChildNodeToBeDeleted = document.getElementById(emailid);
+           if(ChildNodeToBeDeleted){
+            parentNode.removeChild(ChildNodeToBeDeleted);
+           }
+        }
+        
+    </script>
+</body>
+</html>
